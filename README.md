@@ -5,7 +5,7 @@
 2. Python 3.7.X or one later stable version , the download link 👉https://www.python.org/downloads/👈
 
 ### To Run Project:
-1. Clone it : **git clone**
+1. Clone it : **git clone https://github.com/donaldonana/api_project.git**
 2. Move to the project directory : **cd api_project**
 3. Create the virtual environment :  **python -m venv ./env**
 4. Activate the virtual environment, just run the activate bacht file : **activate**
