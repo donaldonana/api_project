@@ -5,7 +5,10 @@ from rest_framework import status, viewsets, filters , generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import mixins
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAdminUser,
@@ -31,7 +34,30 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email',)
+    search_fields = ('nom', 'email',)
+
+    def get_user(self, id):
+        try:
+            return models.UserProfile.objects.get(id=id)
+        except models.UserProfile.DoesNotExist:
+            return HttpResponseBadRequest(status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=['delete'],
+        url_path='remove_users_from_abonnements/(?P<id_remove>\d+)' ,
+        detail=True)
+    def remove_users_from_abonnements(self,  request , id_remove, pk=None):
+        user = self.get_user(int(id_remove))
+        request.user.abonnements.remove(user)
+
+        request.user.save()
+        response = {
+                "status": "success",
+                "code": status.HTTP_204_NO_CONTENT,
+                "message": "Password updated successfully",
+                "data": [],
+            }
+
+        return Response(response)
 
 class UserLoginApiView(ObtainAuthToken):
 
@@ -102,3 +128,38 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 # ==========================================================================================
+
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating user profile"""
+    serializer_class = serializers.DocumentSerializer
+    queryset = models.Document.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ('categorie__nom',)
+    search_fields = ('descriptions', 'contenu','titre', 'tags')
+    ordering_fields = ('titre', 'categorie','date', 'id')
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (permissions.UpdateOwnProfile,)
+    # filter_backends = (filters.SearchFilter,)
+    # search_fields = ('name', 'email',)
+
+class LikeViewSet(viewsets.ModelViewSet):
+    """docstring for LikeViewSet"""
+    serializer_class = serializers.LikeSerializer
+    queryset = models.Like.objects.all()
+
+
+class CommentaireViewSet(viewsets.ModelViewSet):
+    """docstring for LikeViewSet"""
+    serializer_class = serializers.CommentaireSerializer
+    queryset = models.Commentaire.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    
+
+
+            
+
+
+    
+        

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from djongo import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -9,22 +11,22 @@ from django.contrib.auth.models import BaseUserManager
 class UserProfileManager(BaseUserManager):
     """manager for user profiles"""
 
-    def create_user(self, email, last_name, phone, password=None):
+    def create_user(self, email, nom, phone, password=None):
         """create the new user profile"""
         if not email:
             raise ValueError("User most have a email")
 
         # email = self.normalize_email(email)
-        user = self.model(email=email, last_name=last_name, phone = phone)
+        user = self.model(email=email, nom=nom , phone = phone)
 
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, email, last_name, phone, password):
+    def create_superuser(self, email, nom, phone, password):
         """create and save superuser with given detail"""
-        user = self.create_user(email, last_name, phone, password)
+        user = self.create_user(email, nom, phone, password)
 
         user.is_superuser = True
         user.is_staff = True
@@ -35,13 +37,32 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
 
+
+    TYPE = (
+
+    ('lecteur', 'Lecteur'),
+    ('auteur', 'Auteur'),
+    ('visiteur', 'Visiteur'),
+    ('admin', 'Admin'),
+
+    ) 
+
     email = models.EmailField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    nom = models.CharField(max_length=255)
+    prenom = models.CharField(max_length=255, blank = True)
     phone = models.CharField(max_length=255, unique=True)
+    Pays = models.CharField(max_length=255, blank = True)
+    Type = models.CharField(max_length=25, choices=TYPE)
     # avatar = models.CharField(max_length = 255, blank = True)
     # avatar = models.FileField(upload_to="images/%Y/%m/%d", blank=True, null=True)
     # settings = JSONField(null=True, blank=True)
+    abonnements  = models.ManyToManyField('self', 
+        symmetrical = False , 
+        related_name = "abonnement", 
+        blank = True)
+
+    # abonnes   = models.ForeignKey('self', related_name = "abonne", on_delete=models.CASCADE, null = True)
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -49,10 +70,173 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
 
     USERNAME_FIELD = "email"
 
-    REQUIRED_FIELDS = ["last_name", "phone"]
+    REQUIRED_FIELDS = ["nom", "phone"]
 
     def get_last_name(self):
 
     	return self.last_name
 
+
+class Categorie(models.Model):
+    """docstring for categorie"""
+    CATEGORIE = (
+
+    ('actualité', 'Actualité'),
+    ('affaire', 'Affaire'),
+    ('sport et loisir', 'Sport et Loisir'),
+
+    )
+
+    nom = models.CharField(max_length=25, choices=CATEGORIE, unique = True)
+
+    def __str__(self):
+        return self.nom
+
+
+   
+
+class Document(models.Model):
+    """docstring for Document"""
+
+    TYPE = (
+
+    ('ArtMag', 'magazine/journal'),
+    ('livre', 'Livre')
+
+    )
+
+
+    titre = models.CharField(max_length=255, default = "NAN")
+    categorie = models.ForeignKey(Categorie, 
+        on_delete = models.CASCADE,
+        blank = True)
+    descriptions = models.TextField(blank = True)
+    date = models.DateTimeField(default = timezone.now)
+    contenu = models.TextField(blank=True)
+    tags = models.CharField(max_length=300, blank=True)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    # -   Image de couverture
+    # -   Abonnements
+    # -   Parutions
+    Type =  models.CharField(max_length=25, choices=TYPE)
+
+    def __str__(self):
+        return self.titre
+
+
+
+# class ArticleMagazine(Document):
+#     """docstring for ArticleMagazine"""
     
+#     # titre = models.CharField(max_length=255)
+#     date = models.DateTimeField(default = timezone.now)
+#     contenu = models.TextField(blank=True)
+#     tags = models.CharField(max_length=300, blank=True)
+    
+
+#     def __str__(self):
+#         return self.titre
+
+
+class Lecture(models.Model):
+    """docstring for Lecture"""
+    date = models.DateTimeField(auto_now=True)
+    document = models.ForeignKey(Document, 
+        on_delete=models.CASCADE,
+        related_name = "doclecture")
+    user = models.ForeignKey(UserProfile,
+     on_delete=models.CASCADE,
+     related_name = "userlecture")
+    def __str__(self):
+        return self.document.titre
+
+class Commentaire(models.Model):
+    """docstring for Commentaires"""
+    user = models.ForeignKey(UserProfile,
+     on_delete=models.CASCADE,
+     related_name = "comment_user"
+     )
+
+    document =  models.ForeignKey(
+        Document,
+        on_delete = models.CASCADE,
+        related_name = "comment_doc",
+        null = True,
+        )
+
+    date = models.DateTimeField(default = timezone.now)
+    texte = models.TextField()
+
+    def __str__(self):
+        return "Commentaire de " + self.user.nom + " sur "+ self.document.titre
+
+
+class Like(models.Model):
+    """docstring for Likes"""
+    user = models.ForeignKey(UserProfile, 
+        on_delete=models.CASCADE,
+        related_name = "like_user")
+    document = models.ForeignKey(Document, 
+        on_delete=models.CASCADE,
+        related_name = "like_doc")
+    date = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.user.nom + " à liker " +self.document.titre
+
+    
+
+    
+
+    # def __str__(self):
+    #     return self.articlemagazine.titre
+
+
+
+# class Repost(models.Model):
+#     """docstring for Repost"""
+#     articlemagazine = models.ForeignKey(Document, 
+#         on_delete=models.CASCADE, 
+#         related_name = "articlerepost")
+#     user = models.ForeignKey(UserProfile, 
+#         on_delete=models.CASCADE,
+#         related_name = "userrepost")
+#     date = models.DateTimeField(auto_now=True)
+#     likes = models.ManyToManyField(
+#         UserProfile,
+#         through='LikeRepost',
+#         related_name = "likesrepost"
+#         )
+#     commentaires = models.ManyToManyField(
+#                     UserProfile,
+#                     # through='Commentaires'
+#                     related_name = "commentRepost")
+#     def __str__(self):
+#         return self.articlemagazine.titre
+
+
+
+
+
+ 
+    
+
+# class Reponse(models.Model):
+#     """docstring for Reponses"""
+#     user = models.ForeignKey(UserProfile, 
+#         on_delete=models.CASCADE,
+#         related_name = "userreponses")
+#     commentaires = models.ForeignKey(Commentaire,
+#      on_delete=models.CASCADE,
+#      related_name = "commentreponses")
+#     texte = models.CharField(max_length = 300)
+#     date = models.DateTimeField(auto_now=True)
+#     def __str__(self):
+#         return self.commentaires.texte
+    
+        
+    
+        
+
+    
+

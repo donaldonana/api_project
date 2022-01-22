@@ -1,3 +1,18 @@
 ;platform_system == "Windows"
 
 heroku run python manage.py migrate.
+
+python manage.py flush
+
+****-	Photo de profil in user model
+
+
+Dans ArticleMagazine:
+**** Audio
+**** Auteur
+
+
+
+* le champs like dans commentaire est required
+* une fonctionn __str__(self) pour commentaire, lecteur, repost ...
+* Le champs commentaire dans repost est mal defini ainsi que like

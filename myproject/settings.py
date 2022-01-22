@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     "rest_framework",
     "rest_framework.authtoken",
-    "rest_api"
+    "rest_api",
+    "django_filters"
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,13 @@ DATABASES = {
     }
        # 'default': {
        #     'ENGINE': 'djongo',
-       #     'NAME': 'dbproject',
+       #     'CLIENT': {
+       #          'host': 'mongodb+srv://donaldonana:nanojunior92@cluster0.clm4i.mongodb.net/mytestdb?retryWrites=true&w=majority',
+       #          'name' : 'mytestdb',
+       #          'username': 'donaldonana',
+       #          'password': 'nanojunior92',
+       #          'authMechanism': 'SCRAM-SHA-1'
+       #      },
        # }
    }
 
