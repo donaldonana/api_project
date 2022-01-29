@@ -1,18 +1,14 @@
 ;platform_system == "Windows"
 
+heroku pg:reset DATABASE
 heroku run python manage.py migrate.
+heroku run rake db:migrate --optional
 
 python manage.py flush
 
-****-	Photo de profil in user model
+git pull origin master
+git add .
+git commit -am "pre-heroku"
+git push heroku master
 
 
-Dans ArticleMagazine:
-**** Audio
-**** Auteur
-
-
-
-* le champs like dans commentaire est required
-* une fonctionn __str__(self) pour commentaire, lecteur, repost ...
-* Le champs commentaire dans repost est mal defini ainsi que like
