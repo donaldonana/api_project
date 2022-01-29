@@ -84,10 +84,10 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
 
-    #     'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+        'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
        # 'default': {
        #     'ENGINE': 'djongo',
        #     'CLIENT': {
@@ -99,10 +99,10 @@ DATABASES = {
        #      },
        # }
 
-       'default': {
-           'ENGINE': 'djongo',
-           'NAME': 'test',
-       }
+       # 'default': {
+       #     'ENGINE': 'djongo',
+       #     'NAME': 'test',
+       # }
    }
 
 # Password validation
