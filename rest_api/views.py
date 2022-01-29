@@ -154,7 +154,7 @@ class CommentaireViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentaireSerializer
     queryset = models.Commentaire.objects.all()
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    
     
 
 

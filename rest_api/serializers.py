@@ -19,12 +19,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             self.fields.pop("password")
 
     abonnements = AbonnementsSerializer(many = True, read_only = True)
+    # avatar_url = serializers.SerializerMethodField()
 
 
     class Meta:
 
         model = models.UserProfile
-        fields = ('id', 'email', 'nom', 'prenom','password', 'phone', 'abonnements')
+        fields = ('id', 'email', 'nom', 'prenom','password', 'phone', 'abonnements', 'avatar')
         extra_kwargs = {
             'password' : {
                 'write_only' : True,
@@ -33,6 +34,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 }
             }
         }
+    # user = models.UserProfile
+    # def get_avatar_url(self, user):
+    #     request = self.context.get('request')
+    #     avatar_url = user.avatar.url
+    #     return request.build_absolute_uri(avatar_url)
 
 
     def create(self, validated_data):
@@ -74,7 +80,21 @@ class DocumentSerializer(serializers.ModelSerializer):
             'contenu', 
             'Type',
             'tags',
-            'user')
+            'user',
+            'commentaires',
+            'likes')
+
+        extra_kwargs = {
+            'commentaires' : {
+                'read_only' : True,
+                
+            },
+
+            'likes' : {
+                'read_only' : True,
+                
+            }
+        }
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -85,7 +105,7 @@ class LikeSerializer(serializers.ModelSerializer):
         model = models.Like
         fields = ('id', 
             'user', 
-            'document')
+            )
 
 class CommentaireSerializer(serializers.ModelSerializer):
     """docstring for DocuemntSerializer"""
@@ -95,7 +115,7 @@ class CommentaireSerializer(serializers.ModelSerializer):
         model = models.Commentaire
         fields = ('id', 
             'user', 
-            'document')
+            )
 
 
         

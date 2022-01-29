@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import django_heroku
+import djongo
 from pathlib import Path
 import os
 
@@ -83,10 +84,10 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
 
-        'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    #     'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
        # 'default': {
        #     'ENGINE': 'djongo',
        #     'CLIENT': {
@@ -97,6 +98,11 @@ DATABASES = {
        #          'authMechanism': 'SCRAM-SHA-1'
        #      },
        # }
+
+       'default': {
+           'ENGINE': 'djongo',
+           'NAME': 'test',
+       }
    }
 
 # Password validation
@@ -117,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.fields.AutoField'
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -145,5 +151,8 @@ STATICFILES_DIRS = (
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 AUTH_USER_MODEL = "rest_api.UserProfile"
+MEDIA_URL = "/media/"
+STATIC_URL = "/static/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 django_heroku.settings(locals())

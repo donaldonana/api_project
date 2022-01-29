@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from djongo import models
+# from djangotoolbox.fields import EmbeddedModelField
 from django.utils import timezone
 
 # Create your models here.
@@ -52,6 +53,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
     prenom = models.CharField(max_length=255, blank = True)
     phone = models.CharField(max_length=255, unique=True)
     Pays = models.CharField(max_length=255, blank = True)
+    avatar = models.ImageField(upload_to="images/%Y/%m/%d", blank=True, null=True)
     Type = models.CharField(max_length=25, choices=TYPE)
     # avatar = models.CharField(max_length = 255, blank = True)
     # avatar = models.FileField(upload_to="images/%Y/%m/%d", blank=True, null=True)
@@ -74,7 +76,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
 
     def get_last_name(self):
 
-    	return self.last_name
+        return self.last_name
 
 
 class Categorie(models.Model):
@@ -92,8 +94,29 @@ class Categorie(models.Model):
     def __str__(self):
         return self.nom
 
+class Commentaire(models.Model):
+    """docstring for Commentaires"""
+    user = models.ForeignKey(UserProfile,
+     on_delete=models.CASCADE,
+     related_name = "comment_user"
+     )
 
+    date = models.DateTimeField(default = timezone.now)
+    texte = models.TextField()
+
+    def __str__(self):
+        return "Commentaire de " + self.user.nom 
    
+class Like(models.Model):
+    """docstring for Likes"""
+    user = models.ForeignKey(UserProfile, 
+        on_delete=models.CASCADE,
+        related_name = "like_user")
+    date = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.user.nom + " à liker " 
+
 
 class Document(models.Model):
     """docstring for Document"""
@@ -115,6 +138,16 @@ class Document(models.Model):
     contenu = models.TextField(blank=True)
     tags = models.CharField(max_length=300, blank=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    commentaires = models.ManyToManyField(Commentaire,
+        
+        related_name = "comment_doc",
+        blank= True
+     )
+    likes = models.ManyToManyField(Like,
+        
+        related_name = "like_doc",
+        blank= True
+     )
     # -   Image de couverture
     # -   Abonnements
     # -   Parutions
@@ -123,19 +156,6 @@ class Document(models.Model):
     def __str__(self):
         return self.titre
 
-
-
-# class ArticleMagazine(Document):
-#     """docstring for ArticleMagazine"""
-    
-#     # titre = models.CharField(max_length=255)
-#     date = models.DateTimeField(default = timezone.now)
-#     contenu = models.TextField(blank=True)
-#     tags = models.CharField(max_length=300, blank=True)
-    
-
-#     def __str__(self):
-#         return self.titre
 
 
 class Lecture(models.Model):
@@ -150,39 +170,9 @@ class Lecture(models.Model):
     def __str__(self):
         return self.document.titre
 
-class Commentaire(models.Model):
-    """docstring for Commentaires"""
-    user = models.ForeignKey(UserProfile,
-     on_delete=models.CASCADE,
-     related_name = "comment_user"
-     )
-
-    document =  models.ForeignKey(
-        Document,
-        on_delete = models.CASCADE,
-        related_name = "comment_doc",
-        null = True,
-        )
-
-    date = models.DateTimeField(default = timezone.now)
-    texte = models.TextField()
-
-    def __str__(self):
-        return "Commentaire de " + self.user.nom + " sur "+ self.document.titre
 
 
-class Like(models.Model):
-    """docstring for Likes"""
-    user = models.ForeignKey(UserProfile, 
-        on_delete=models.CASCADE,
-        related_name = "like_user")
-    document = models.ForeignKey(Document, 
-        on_delete=models.CASCADE,
-        related_name = "like_doc")
-    date = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.user.nom + " à liker " +self.document.titre
+
 
     
 
@@ -239,4 +229,3 @@ class Like(models.Model):
         
 
     
-
