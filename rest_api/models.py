@@ -12,22 +12,45 @@ from django.utils import timezone
 class UserProfileManager(BaseUserManager):
     """manager for user profiles"""
 
-    def create_user(self, email, nom, phone, password=None):
+    def create_user(self, 
+        email, 
+        nom, 
+        phone, 
+        Type,
+        password=None,
+        avatar = "",
+        prenom = "", 
+        Pays = ""
+        ):
         """create the new user profile"""
         if not email:
             raise ValueError("User most have a email")
 
-        # email = self.normalize_email(email)
-        user = self.model(email=email, nom=nom , phone = phone)
+        email = self.normalize_email(email)
+        user = self.model(email=email, 
+            nom=nom , 
+            phone = phone, 
+            avatar = avatar, 
+            Type = Type,
+            prenom = prenom,
+            Pays=Pays)
 
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, email, nom, phone, password):
+    def create_superuser(self, 
+        email, 
+        nom, 
+        phone, 
+        Type,
+        password,
+        avatar = "",
+        prenom = "",
+        Pays = ""):
         """create and save superuser with given detail"""
-        user = self.create_user(email, nom, phone, password)
+        user = self.create_user(email, nom, phone, Type, password, avatar, prenom, Pays)
 
         user.is_superuser = True
         user.is_staff = True
@@ -55,12 +78,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
     Pays = models.CharField(max_length=255, blank = True)
     avatar = models.ImageField(upload_to="images/%Y/%m/%d", blank=True, null=True)
     Type = models.CharField(max_length=25, choices=TYPE)
-    # avatar = models.CharField(max_length = 255, blank = True)
-    # avatar = models.FileField(upload_to="images/%Y/%m/%d", blank=True, null=True)
-    # settings = JSONField(null=True, blank=True)
     abonnements  = models.ManyToManyField('self', 
         symmetrical = False , 
         related_name = "abonnement", 
+        blank = True)
+    abonnes  = models.ManyToManyField('self', 
+        symmetrical = False , 
+        related_name = "abonne", 
         blank = True)
 
     # abonnes   = models.ForeignKey('self', related_name = "abonne", on_delete=models.CASCADE, null = True)

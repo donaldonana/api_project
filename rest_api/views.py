@@ -22,7 +22,7 @@ from rest_api import serializers
 from rest_api import models, permissions
 
 # Create your views here.
-
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 
 
@@ -35,6 +35,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('nom', 'email',)
+    parser_classes = (MultiPartParser,FormParser)
 
     def get_user(self, id):
         try:
@@ -42,22 +43,62 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         except models.UserProfile.DoesNotExist:
             return HttpResponseBadRequest(status=status.HTTP_404_NOT_FOUND)
 
-    @action(methods=['delete'],
-        url_path='remove_users_from_abonnements/(?P<id_remove>\d+)' ,
-        detail=True)
-    def remove_users_from_abonnements(self,  request , id_remove, pk=None):
-        user = self.get_user(int(id_remove))
-        request.user.abonnements.remove(user)
+    @action(methods=['patch'],
+        url_path='remove_users_from_abonnements' ,
+        detail=True,
+        serializer_class=serializers.AbonnementManagementSerializer)
+    def remove_users_from_abonnements(self,  request , pk=None):
 
-        request.user.save()
-        response = {
-                "status": "success",
-                "code": status.HTTP_204_NO_CONTENT,
-                "message": "Password updated successfully",
-                "data": [],
-            }
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            id_remove = serializer.data.get("user_id")
 
-        return Response(response)
+
+            user = self.get_user(int(id_remove))
+            request.user.abonnements.remove(user)
+            user.abonne.remove(request.user)
+
+            request.user.save()
+            user.save()
+            response = {
+                    "status": "success",
+                    "code": status.HTTP_204_NO_CONTENT,
+                    "message": "remove user successfully",
+                    "data": [],
+                }
+
+            return Response(response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(methods=['patch'],
+        url_path='add_users_to_abonnements' ,
+        detail=True,
+        serializer_class=serializers.AbonnementManagementSerializer)
+    def add_users_from_abonnements(self,  request , pk=None):
+
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            id_add = serializer.data.get("user_id")
+
+
+            user = self.get_user(int(id_add))
+            print(user)
+            request.user.abonnements.add(user)
+            user.abonne.add(request.user)
+
+            request.user.save()
+            user.save()
+            response = {
+                    "status": "success",
+                    "code": status.HTTP_204_NO_CONTENT,
+                    "message": "user add successfully",
+                    "data": [],
+                }
+
+            return Response(response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserLoginApiView(ObtainAuthToken):
 
@@ -138,6 +179,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     filterset_fields = ('categorie__nom',)
     search_fields = ('descriptions', 'contenu','titre', 'tags')
     ordering_fields = ('titre', 'categorie','date', 'id')
+    parser_classes = (MultiPartParser,FormParser)
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (permissions.UpdateOwnProfile,)
     # filter_backends = (filters.SearchFilter,)

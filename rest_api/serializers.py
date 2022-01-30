@@ -8,47 +8,55 @@ from rest_api import models
 class AbonnementsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserProfile
-        fields = ( 'id', 'email', 'nom', 'prenom', 'phone')
+        fields = ( 'id', 'email', 'nom', 'phone')
       
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer the user profile object"""
 
     def __init__(self, *args, **kwargs):
-        super(UserProfileSerializer, self).__init__(*args, **kwargs)
+
+        super().__init__(*args, **kwargs)
         if self.context["request"].method == "PUT":
             self.fields.pop("password")
+        if "data" in kwargs.keys():  
+            self.f = kwargs["data"]
 
     abonnements = AbonnementsSerializer(many = True, read_only = True)
-    # avatar_url = serializers.SerializerMethodField()
-
+    abonne = AbonnementsSerializer(many = True, read_only = True)
+    
 
     class Meta:
 
         model = models.UserProfile
-        fields = ('id', 'email', 'nom', 'prenom','password', 'phone', 'abonnements', 'avatar')
+        fields = ('id', 'email', 'nom', 'prenom', 'phone', 'avatar', 
+            'password', 'abonnements', 'abonne', 'Type', 'Pays' )
         extra_kwargs = {
             'password' : {
                 'write_only' : True,
                 'style' : {
                     'input_type' : 'password'
                 }
-            }
+            }, 
         }
-    # user = models.UserProfile
-    # def get_avatar_url(self, user):
-    #     request = self.context.get('request')
-    #     avatar_url = user.avatar.url
-    #     return request.build_absolute_uri(avatar_url)
+    
 
 
     def create(self, validated_data):
         """create the return new user"""
+        if self.f is not None:
+            allowed = set(self.f.keys())
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                validated_data[field_name] = None
 
         user = models.UserProfile.objects.create_user(
             email =  validated_data['email'],
             nom =  validated_data['nom'],
-            # abonnements = validated_data['abonnements'],
+            avatar = validated_data['avatar'],
             phone =  validated_data['phone'],
+            Type = validated_data["Type"],
+            Pays = validated_data["Pays"],
+            prenom = validated_data['prenom'],
             password = validated_data['password']
         )
 
@@ -63,6 +71,13 @@ class ChangePasswordSerializer(serializers.Serializer):
     model = models.UserProfile
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class AbonnementManagementSerializer(serializers.Serializer):
+    """
+    Serializer for Abonnement Management.
+    """
+    user_id = serializers.IntegerField(required=True)
 
 
 
@@ -105,6 +120,7 @@ class LikeSerializer(serializers.ModelSerializer):
         model = models.Like
         fields = ('id', 
             'user', 
+            'date',
             )
 
 class CommentaireSerializer(serializers.ModelSerializer):
@@ -115,6 +131,8 @@ class CommentaireSerializer(serializers.ModelSerializer):
         model = models.Commentaire
         fields = ('id', 
             'user', 
+            'date',
+            'texte'
             )
 
 
