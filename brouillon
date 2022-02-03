@@ -27,3 +27,5 @@ A request body can only contain files when it has the multipart content type. Yo
 postgres://aqvdbjtyvziesr:b247e28e65479558a3335588a3cb7561aee649b95dd9fbca40474bd3b84a412d@ec2-34-230-198-12.compute-1.amazonaws.com:5432/de6qcbjltlklmn
 
 DATABASE_URL
+
+django.db.backends.
