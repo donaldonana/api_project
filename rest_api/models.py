@@ -128,6 +128,16 @@ class Commentaire(models.Model):
     date = models.DateTimeField(default = timezone.now)
     texte = models.TextField()
 
+    reponses  = models.ManyToManyField('self', 
+        symmetrical = False , 
+        related_name = "reponse", 
+        blank = True)
+
+    likes = models.ManyToManyField("Like",
+        related_name = "like_reponses",
+        blank = True
+        )
+
     def __str__(self):
         return "Commentaire de " + self.user.nom 
    
@@ -136,7 +146,7 @@ class Like(models.Model):
     user = models.ForeignKey(UserProfile, 
         on_delete=models.CASCADE,
         related_name = "like_user")
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(default = timezone.now)
     
     def __str__(self):
         return self.user.nom + " à liker " 
@@ -161,7 +171,15 @@ class Document(models.Model):
     date = models.DateTimeField(default = timezone.now)
     contenu = models.TextField(blank=True)
     tags = models.CharField(max_length=300, blank=True)
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    auteur = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    lecteurs =  models.ManyToManyField(UserProfile, 
+        related_name = "lecteurs", 
+        blank = True)
+    repost = models.ManyToManyField("Repost",
+        
+        related_name = "repost_doc",
+        blank= True
+     )
     commentaires = models.ManyToManyField(Commentaire,
         
         related_name = "comment_doc",
@@ -179,6 +197,26 @@ class Document(models.Model):
 
     def __str__(self):
         return self.titre
+
+class Repost(models.Model):
+    """docstring for Repost"""
+    articlemagazine = models.ForeignKey(Document, 
+        on_delete=models.CASCADE, 
+        related_name = "articlerepost")
+    user = models.ForeignKey(UserProfile, 
+        on_delete=models.CASCADE,
+        related_name = "userrepost")
+    # texte = models.TextField()
+    date = models.DateTimeField(default = timezone.now)
+    likes = models.ManyToManyField(
+        "Like",
+        related_name = "likesrepost"
+        )
+    commentaires = models.ManyToManyField(
+                    "Commentaire",
+                    related_name = "commentRepost")
+    def __str__(self):
+        return "repost" + self.articlemagazine.titre
 
 
 
@@ -207,26 +245,7 @@ class Lecture(models.Model):
 
 
 
-# class Repost(models.Model):
-#     """docstring for Repost"""
-#     articlemagazine = models.ForeignKey(Document, 
-#         on_delete=models.CASCADE, 
-#         related_name = "articlerepost")
-#     user = models.ForeignKey(UserProfile, 
-#         on_delete=models.CASCADE,
-#         related_name = "userrepost")
-#     date = models.DateTimeField(auto_now=True)
-#     likes = models.ManyToManyField(
-#         UserProfile,
-#         through='LikeRepost',
-#         related_name = "likesrepost"
-#         )
-#     commentaires = models.ManyToManyField(
-#                     UserProfile,
-#                     # through='Commentaires'
-#                     related_name = "commentRepost")
-#     def __str__(self):
-#         return self.articlemagazine.titre
+
 
 
 

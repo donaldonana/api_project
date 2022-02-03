@@ -80,10 +80,36 @@ class AbonnementManagementSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=True)
 
 
+class RepostSerializer(serializers.ModelSerializer):
+    """docstring for DocuemntSerializer"""
+
+    class Meta:
+
+        model = models.Repost
+        fields = ('id', 
+            'articlemagazine', 
+            'user',
+            'date', 
+            'likes',
+            'commentaires')
+
+        extra_kwargs = {
+            'commentaires' : {
+                'read_only' : True,
+                
+            },
+
+            'likes' : {
+                'read_only' : True,
+                
+            }
+        }
+
 
 class DocumentSerializer(serializers.ModelSerializer):
     """docstring for DocuemntSerializer"""
 
+    repost = RepostSerializer(many =True, read_only =True)
     class Meta:
 
         model = models.Document
@@ -95,7 +121,9 @@ class DocumentSerializer(serializers.ModelSerializer):
             'contenu', 
             'Type',
             'tags',
-            'user',
+            'repost',
+            'auteur',
+            'lecteurs',
             'commentaires',
             'likes')
 
@@ -112,6 +140,8 @@ class DocumentSerializer(serializers.ModelSerializer):
         }
 
 
+
+
 class LikeSerializer(serializers.ModelSerializer):
     """docstring for DocuemntSerializer"""
 
@@ -123,8 +153,26 @@ class LikeSerializer(serializers.ModelSerializer):
             'date',
             )
 
+class ReponsesSerializer(serializers.ModelSerializer):
+    """docstring for ReponsesSerializer"""
+    class Meta:
+
+        model = models.Commentaire
+        fields = ('id', 
+            'user', 
+            'date',
+            'texte',
+            'likes'
+            )
+
+    
+        
+
 class CommentaireSerializer(serializers.ModelSerializer):
     """docstring for DocuemntSerializer"""
+
+    likes = LikeSerializer(many = True, read_only = True)
+    reponses = ReponsesSerializer(many =True , read_only =True)
 
     class Meta:
 
@@ -132,7 +180,9 @@ class CommentaireSerializer(serializers.ModelSerializer):
         fields = ('id', 
             'user', 
             'date',
-            'texte'
+            'texte',
+            'reponses',
+            'likes'
             )
 
 

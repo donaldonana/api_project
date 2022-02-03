@@ -7,6 +7,7 @@ from rest_api import views
 router = DefaultRouter()
 router.register('UserProfile', views.UserProfileViewSet)
 router.register('Document', views.DocumentViewSet)
+router.register('Repost', views.RepostViewSet)
 router.register('Like', views.LikeViewSet)
 router.register('Commentaire', views.CommentaireViewSet)
 

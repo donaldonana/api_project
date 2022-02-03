@@ -185,6 +185,18 @@ class DocumentViewSet(viewsets.ModelViewSet):
     # filter_backends = (filters.SearchFilter,)
     # search_fields = ('name', 'email',)
 
+
+class RepostViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating user profile"""
+    serializer_class = serializers.RepostSerializer
+    queryset = models.Repost.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ('articlemagazine__categorie__nom',)
+    search_fields = ('articlemagazine__descriptions', 'articlemagazine__contenu','articlemagazine__titre')
+    ordering_fields = ('articlemagazine__titre', 'articlemagazine__categorie','date', 'id')
+    parser_classes = (MultiPartParser,FormParser)
+
+
 class LikeViewSet(viewsets.ModelViewSet):
     """docstring for LikeViewSet"""
     serializer_class = serializers.LikeSerializer

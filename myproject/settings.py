@@ -84,20 +84,20 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
 
-        'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-       # 'default': {
-       #     'ENGINE': 'djongo',
-       #     'CLIENT': {
-       #          'host': 'mongodb+srv://donaldonana:nanojunior92@cluster0.clm4i.mongodb.net/mytestdb?retryWrites=true&w=majority',
-       #          'name' : 'mytestdb',
-       #          'username': 'donaldonana',
-       #          'password': 'nanojunior92',
-       #          'authMechanism': 'SCRAM-SHA-1'
-       #      },
-       # }
+    #     'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+       'default': {
+           'ENGINE': 'djongo',
+           'CLIENT': {
+                'host': 'mongodb+srv://donaldonana:nanojunior92@cluster0.clm4i.mongodb.net/mytestdb?retryWrites=true&w=majority',
+                'name' : 'mytestdb',
+                'username': 'donaldonana',
+                'password': 'nanojunior92',
+                'authMechanism': 'SCRAM-SHA-1'
+            },
+       }
 
        # 'default': {
        #     'ENGINE': 'djongo',
