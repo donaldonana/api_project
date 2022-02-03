@@ -75,7 +75,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, models.Model):
     nom = models.CharField(max_length=255)
     prenom = models.CharField(max_length=255, blank = True)
     phone = models.CharField(max_length=255, unique=True)
-    Pays = models.CharField(max_length=255, blank = True)
+    Pays = models.CharField(max_length=255, blank = True, null = True)
     avatar = models.ImageField(upload_to="images/%Y/%m/%d", blank=True, null=True)
     Type = models.CharField(max_length=25, choices=TYPE)
     abonnements  = models.ManyToManyField('self', 
