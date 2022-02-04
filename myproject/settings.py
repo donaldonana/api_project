@@ -90,7 +90,7 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
        'default': {
-           'ENGINE': 'djongo',
+           'ENGINE': os.environ.get("NOSQL_ENGINE", "djongo"),
            'CLIENT': {
                 'host': 'mongodb+srv://donaldonana:nanojunior92@cluster0.clm4i.mongodb.net/mytestdb?retryWrites=true&w=majority',
                 'name' : 'mytestdb',
@@ -98,6 +98,7 @@ DATABASES = {
                 'password': 'nanojunior92',
                 'authMechanism': 'SCRAM-SHA-1'
             },
+            'ENFORCE_SCHEMA': os.environ.get("NOSQL_ENFORCE_SCHEMA", True)
        }
 
        # 'default': {
@@ -137,6 +138,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
 
 
 # Static files (CSS, JavaScript, Images)
